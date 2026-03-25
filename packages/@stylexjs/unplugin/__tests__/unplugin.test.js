@@ -141,4 +141,98 @@ describe('@stylexjs/unplugin', () => {
       fs.rmSync(tempDir, { recursive: true, force: true });
     }
   });
+  test('respects project browserslist config and preserves light-dark() for modern targets', async () => {
+    const tempDir = fs.mkdtempSync(
+      path.join(os.tmpdir(), 'stylex-browserslist-'),
+    );
+    const originalCwd = process.cwd();
+    try {
+      // Create a browserslist config targeting modern Chrome (supports light-dark)
+      fs.writeFileSync(
+        path.join(tempDir, '.browserslistrc'),
+        'last 1 Chrome version\n',
+        'utf8',
+      );
+      fs.writeFileSync(
+        path.join(tempDir, 'package.json'),
+        JSON.stringify({ name: 'test' }),
+        'utf8',
+      );
+      process.chdir(tempDir);
+
+      const plugin = unplugin.rollup({
+        runtimeInjection: false,
+        devPersistToDisk: false,
+        dev: false,
+      });
+      if (typeof plugin.buildStart === 'function') {
+        plugin.buildStart();
+      }
+      const source = `
+        import * as stylex from '@stylexjs/stylex';
+        const styles = stylex.create({ foo: { color: 'light-dark(#000, #fff)' } });
+        export default styles;
+      `;
+      const result = await plugin.transform(source, '/virtual/example.js');
+      expect(result).not.toBeNull();
+
+      await plugin.writeBundle({ dir: tempDir }, {});
+      const cssPath = path.join(tempDir, 'assets', 'stylex.css');
+      expect(fs.existsSync(cssPath)).toBe(true);
+      const cssContent = fs.readFileSync(cssPath, 'utf8');
+      // With modern Chrome targets from .browserslistrc, light-dark() should be preserved
+      expect(cssContent).toContain('light-dark(');
+      expect(cssContent).not.toContain('--lightningcss-light');
+      expect(cssContent).not.toContain('--lightningcss-dark');
+    } finally {
+      process.chdir(originalCwd);
+      fs.rmSync(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  test('polyfills light-dark() when lightningcssOptions targets old browsers', async () => {
+    const tempDir = fs.mkdtempSync(
+      path.join(os.tmpdir(), 'stylex-old-targets-'),
+    );
+    const originalCwd = process.cwd();
+    try {
+      fs.writeFileSync(
+        path.join(tempDir, 'package.json'),
+        JSON.stringify({ name: 'test' }),
+        'utf8',
+      );
+      process.chdir(tempDir);
+
+      const plugin = unplugin.rollup({
+        runtimeInjection: false,
+        devPersistToDisk: false,
+        dev: false,
+        lightningcssOptions: {
+          // Chrome 112 does NOT support light-dark()
+          targets: { chrome: 112 << 16 },
+        },
+      });
+      if (typeof plugin.buildStart === 'function') {
+        plugin.buildStart();
+      }
+      const source = `
+        import * as stylex from '@stylexjs/stylex';
+        const styles = stylex.create({ foo: { color: 'light-dark(#000, #fff)' } });
+        export default styles;
+      `;
+      const result = await plugin.transform(source, '/virtual/example.js');
+      expect(result).not.toBeNull();
+
+      await plugin.writeBundle({ dir: tempDir }, {});
+      const cssPath = path.join(tempDir, 'assets', 'stylex.css');
+      expect(fs.existsSync(cssPath)).toBe(true);
+      const cssContent = fs.readFileSync(cssPath, 'utf8');
+      // With old Chrome targets, light-dark() should be polyfilled by lightningcss
+      expect(cssContent).toContain('--lightningcss-light');
+      expect(cssContent).not.toContain('light-dark(');
+    } finally {
+      process.chdir(originalCwd);
+      fs.rmSync(tempDir, { recursive: true, force: true });
+    }
+  });
 });

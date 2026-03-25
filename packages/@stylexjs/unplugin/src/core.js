@@ -53,8 +53,11 @@ function processCollectedRulesToCSS(rules, options) {
     layersAfter: options?.layersAfter,
     enableLTRRTLComments: options?.enableLTRRTLComments,
   });
+
   const { code } = lightningTransform({
-    targets: browserslistToTargets(browserslist('>= 1%')),
+    // Respect the project's browserslist config (.browserslistrc, package.json, etc.)
+    // instead of hardcoding a query. Falls back to browserslist defaults if no config found.
+    targets: browserslistToTargets(browserslist()),
     ...options.lightningcssOptions,
     filename: 'stylex.css',
     code: Buffer.from(collectedCSS),

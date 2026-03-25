@@ -12,9 +12,6 @@ import mdx from 'fumadocs-mdx/vite';
 import * as MdxConfig from './source.config.js';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import stylex from '@stylexjs/unplugin';
-// import lightningcss from 'lightningcss';
-import { browserslistToTargets } from 'lightningcss';
-import browserslist from 'browserslist';
 
 const require = createRequire(import.meta.url);
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
@@ -97,9 +94,9 @@ export default defineConfig({
         aliases: {
           '@/*': [path.join(__dirname, 'src/*')],
         },
+        // @ts-ignore - lightningcssOptions type requires filename/code but those are set internally
         lightningcssOptions: {
           minify: process.env.NODE_ENV !== 'development',
-          targets: browserslistToTargets(browserslist('>= 5%')),
         },
       }),
       // @ts-ignore

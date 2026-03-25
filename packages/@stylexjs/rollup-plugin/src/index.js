@@ -89,7 +89,9 @@ export default function stylexPlugin({
 
         // Process the CSS using lightningcss
         const { code } = transform({
-          targets: browserslistToTargets(browserslist('>= 1%')),
+          // Respect the project's browserslist config (.browserslistrc, package.json, etc.)
+          // instead of hardcoding a query. Falls back to browserslist defaults if no config found.
+          targets: browserslistToTargets(browserslist()),
           ...lightningcssOptions,
           filename: 'stylex.css',
           code: Buffer.from(collectedCSS),
