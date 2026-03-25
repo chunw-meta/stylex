@@ -289,14 +289,6 @@ function styleXTransform(): PluginObj<> {
         if (sxPropName === false) {
           return;
         }
-        const node = path.node;
-        if (
-          node.name.type !== 'JSXIdentifier' ||
-          typeof node.name.name !== 'string' ||
-          node.name.name[0] !== node.name.name[0].toLowerCase()
-        ) {
-          return;
-        }
         for (const attr of path.get('attributes')) {
           if (
             !attr.isJSXAttribute() ||
@@ -313,15 +305,24 @@ function styleXTransform(): PluginObj<> {
           if (value.isJSXEmptyExpression()) {
             continue;
           }
+
+          // Build the stylex.props() or props() call using the actual import name
+          let callee;
+          const propsImportName = state.stylexPropsImport.values().next()
+            .value;
+          if (propsImportName != null) {
+            callee = t.identifier(propsImportName);
+          } else {
+            const defaultImportName = state.stylexImport.values().next().value;
+            callee = t.memberExpression(
+              t.identifier(defaultImportName ?? 'stylex'),
+              t.identifier('props'),
+            );
+          }
+
           attr.replaceWith(
             t.jsxSpreadAttribute(
-              t.callExpression(
-                t.memberExpression(
-                  t.identifier('stylex'),
-                  t.identifier('props'),
-                ),
-                [value.node],
-              ),
+              t.callExpression(callee, [value.node]),
             ),
           );
           break;

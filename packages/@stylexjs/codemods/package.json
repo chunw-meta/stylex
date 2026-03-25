@@ -1,0 +1,34 @@
+{
+  "name": "@stylexjs/codemods",
+  "version": "0.18.1",
+  "description": "Codemods for migrating StyleX codebases.",
+  "main": "./lib/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/facebook/stylex.git"
+  },
+  "license": "MIT",
+  "scripts": {
+    "build": "babel src/ --out-dir lib/ --copy-files",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@babel/core": "^7.28.5",
+    "@babel/plugin-syntax-jsx": "^7.25.9",
+    "@babel/plugin-syntax-typescript": "^7.25.9",
+    "@babel/traverse": "^7.26.8",
+    "@babel/types": "^7.26.8"
+  },
+  "devDependencies": {
+    "scripts": "0.18.1"
+  },
+  "jest": {
+    "snapshotFormat": {
+      "printBasicPrototype": false
+    },
+    "verbose": true
+  },
+  "files": [
+    "lib/*"
+  ]
+}

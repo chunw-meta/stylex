@@ -308,6 +308,156 @@ describe('@stylexjs/babel-plugin', () => {
         `);
       });
 
+      test('sx prop on uppercase component', () => {
+        expect(
+          transform(
+            `
+            import stylex from 'stylex';
+            const styles = stylex.create({
+              red: {
+                color: 'red',
+              }
+            });
+            function Foo() {
+              return <Component sx={styles.red}>Hello World</Component>;
+            }
+          `,
+            options,
+          ),
+        ).toMatchInlineSnapshot(`
+          "import _inject from "@stylexjs/stylex/lib/stylex-inject";
+          var _inject2 = _inject;
+          import stylex from 'stylex';
+          _inject2({
+            ltr: ".color-x1e2nbdu{color:red}",
+            priority: 3000
+          });
+          function Foo() {
+            return <Component className="color-x1e2nbdu" data-style-src="npm-package:js/node_modules/npm-package/dist/components/Foo.react.js:4">Hello World</Component>;
+          }"
+        `);
+      });
+
+      test('sx prop on member expression tag', () => {
+        expect(
+          transform(
+            `
+            import stylex from 'stylex';
+            const styles = stylex.create({
+              red: {
+                color: 'red',
+              }
+            });
+            function Foo() {
+              return <animated.div sx={styles.red}>Hello World</animated.div>;
+            }
+          `,
+            options,
+          ),
+        ).toMatchInlineSnapshot(`
+          "import _inject from "@stylexjs/stylex/lib/stylex-inject";
+          var _inject2 = _inject;
+          import stylex from 'stylex';
+          _inject2({
+            ltr: ".color-x1e2nbdu{color:red}",
+            priority: 3000
+          });
+          function Foo() {
+            return <animated.div className="color-x1e2nbdu" data-style-src="npm-package:js/node_modules/npm-package/dist/components/Foo.react.js:4">Hello World</animated.div>;
+          }"
+        `);
+      });
+
+      test('sx prop on namespaced component tag', () => {
+        expect(
+          transform(
+            `
+            import stylex from 'stylex';
+            const styles = stylex.create({
+              red: {
+                color: 'red',
+              }
+            });
+            function Foo() {
+              return <Namespace.Component sx={[styles.red]}>Hello World</Namespace.Component>;
+            }
+          `,
+            options,
+          ),
+        ).toMatchInlineSnapshot(`
+          "import _inject from "@stylexjs/stylex/lib/stylex-inject";
+          var _inject2 = _inject;
+          import stylex from 'stylex';
+          _inject2({
+            ltr: ".color-x1e2nbdu{color:red}",
+            priority: 3000
+          });
+          function Foo() {
+            return <Namespace.Component className="color-x1e2nbdu" data-style-src="npm-package:js/node_modules/npm-package/dist/components/Foo.react.js:4">Hello World</Namespace.Component>;
+          }"
+        `);
+      });
+
+      test('sx prop uses correct import name', () => {
+        expect(
+          transform(
+            `
+            import sx from 'stylex';
+            const styles = sx.create({
+              red: {
+                color: 'red',
+              }
+            });
+            function Foo() {
+              return <div sx={styles.red}>Hello World</div>;
+            }
+          `,
+            options,
+          ),
+        ).toMatchInlineSnapshot(`
+          "import _inject from "@stylexjs/stylex/lib/stylex-inject";
+          var _inject2 = _inject;
+          import sx from 'stylex';
+          _inject2({
+            ltr: ".color-x1e2nbdu{color:red}",
+            priority: 3000
+          });
+          function Foo() {
+            return <div className="color-x1e2nbdu" data-style-src="npm-package:js/node_modules/npm-package/dist/components/Foo.react.js:4">Hello World</div>;
+          }"
+        `);
+      });
+
+      test('sx prop uses named props import', () => {
+        expect(
+          transform(
+            `
+            import { create, props } from 'stylex';
+            const styles = create({
+              red: {
+                color: 'red',
+              }
+            });
+            function Foo() {
+              return <Component sx={styles.red}>Hello World</Component>;
+            }
+          `,
+            options,
+          ),
+        ).toMatchInlineSnapshot(`
+          "import _inject from "@stylexjs/stylex/lib/stylex-inject";
+          var _inject2 = _inject;
+          import { create, props } from 'stylex';
+          _inject2({
+            ltr: ".color-x1e2nbdu{color:red}",
+            priority: 3000
+          });
+          function Foo() {
+            return <Component className="color-x1e2nbdu" data-style-src="npm-package:js/node_modules/npm-package/dist/components/Foo.react.js:4">Hello World</Component>;
+          }"
+        `);
+      });
+
       test('local dynamic styles', () => {
         expect(
           transform(
