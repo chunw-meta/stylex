@@ -110,6 +110,21 @@ export const unstable_createThemeNested = (
   throw errorForFn('unstable_createThemeNested');
 };
 
+export const defineTheme = function stylexDefineTheme<
+  const T: { +[string]: mixed },
+  const Themes: { +[string]: { +[string]: mixed } } = {
+    +[string]: { +[string]: mixed },
+  },
+>(_config: {
+  +tokens: T,
+  +themes?: Themes,
+}): $ReadOnly<{
+  tokens: T,
+  themes: $ReadOnly<{ +[string]: CompiledStyles }>,
+}> {
+  throw errorForFn('defineTheme');
+};
+
 export const defineMarker: StyleX$DefineMarker = () => {
   throw errorForFn('defineMarker');
 };
@@ -357,6 +372,10 @@ type IStyleX = {
     baseTokens: { +[string]: mixed },
     overrides: { +[string]: mixed },
   ) => mixed,
+  defineTheme: (config: {
+    +tokens: { +[string]: mixed },
+    +themes?: { +[string]: { +[string]: mixed } },
+  }) => mixed,
   __customProperties?: { [string]: unknown },
   ...
 };
@@ -388,5 +407,6 @@ export const legacyMerge: IStyleX = /*@__PURE__*/ (function () {
   _legacyMerge.unstable_defineVarsNested = unstable_defineVarsNested;
   _legacyMerge.unstable_defineConstsNested = unstable_defineConstsNested;
   _legacyMerge.unstable_createThemeNested = unstable_createThemeNested;
+  _legacyMerge.defineTheme = defineTheme;
   return _legacyMerge;
 })();

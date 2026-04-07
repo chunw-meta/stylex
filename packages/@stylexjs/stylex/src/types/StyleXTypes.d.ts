@@ -399,3 +399,19 @@ export type StyleX$Conditional = <
 >(
   value: T,
 ) => T;
+
+// defineTheme: unified API co-locating tokens and theme variants.
+export type StyleX$DefineTheme = <
+  const T extends { readonly [key: string]: unknown },
+  const Themes extends {
+    readonly [key: string]: { readonly [key: string]: unknown };
+  } = {},
+>(config: {
+  readonly tokens: T;
+  readonly themes?: Themes;
+}) => Readonly<{
+  tokens: T;
+  themes: Readonly<{
+    [K in keyof Themes]: CompiledStyles;
+  }>;
+}>;

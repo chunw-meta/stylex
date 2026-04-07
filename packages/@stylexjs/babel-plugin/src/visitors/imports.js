@@ -115,6 +115,10 @@ export function readImportDeclarations(
             if (importedName === 'unstable_conditional') {
               state.stylexConditionalImport.add(localName);
             }
+            if (importedName === 'defineTheme') {
+              state.stylexDefineThemeImport.add(localName);
+            }
+            }
           }
         }
       }
@@ -214,6 +218,10 @@ export function readRequires(
           }
           if (prop.key.name === 'unstable_conditional') {
             state.stylexConditionalImport.add(value.name);
+          }
+          if (prop.key.name === 'defineTheme') {
+            state.stylexDefineThemeImport.add(value.name);
+          }
           }
         }
       }
